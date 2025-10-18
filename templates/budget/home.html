@@ -1,0 +1,1730 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}MoneyMind - Ваш личный финансовый помощник{% endblock %}
+
+{% block content %}
+<!-- Хедер с кнопками навигации -->
+<header class="main-header fixed-top">
+    <nav class="navbar navbar-expand-xl navbar-light">
+        <div class="container">
+            <!-- Логотип с улучшенным дизайном -->
+            <a class="navbar-brand" href="{% url 'budget:home' %}">
+                <div class="brand-wrapper">
+                    <i class="bi bi-graph-up-arrow brand-icon"></i>
+                    <span class="brand-text">
+                        Money<span class="brand-accent">Mind</span>
+                    </span>
+                </div>
+            </a>
+
+            <!-- Навигационное меню для больших экранов -->
+            <div class="navbar-collapse collapse" id="mainNavbar">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">
+                            <i class="bi bi-stars me-1"></i>Возможности
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#testimonials">
+                            <i class="bi bi-chat-quote me-1"></i>Отзывы
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">
+                            <i class="bi bi-info-circle me-1"></i>О нас
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Кнопки авторизации -->
+                <div class="auth-section">
+                    {% if user.is_authenticated %}
+                        <div class="user-menu">
+                            <a href="{% url 'budget:transaction_list' %}" class="btn btn-primary me-2">
+                                <i class="bi bi-speedometer2 me-2"></i>Дашборд
+                            </a>
+                            <div class="dropdown user-dropdown">
+                                <button class="btn btn-outline-primary dropdown-toggle" type="button" 
+                                        data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-circle me-2"></i>
+                                    {{ user.first_name|default:user.username }}
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'budget:transaction_list' %}">
+                                            <i class="bi bi-house me-2"></i>Главная
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'budget:savings_goals' %}">
+                                            <i class="bi bi-bullseye me-2"></i>Цели
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'budget:loans_list' %}">
+                                            <i class="bi bi-credit-card me-2"></i>Кредиты
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="post" action="{% url 'logout' %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="bi bi-box-arrow-right me-2"></i>Выйти
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="guest-actions">
+                            <a href="{% url 'budget:login' %}" class="btn btn-outline-primary me-3">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Войти
+                            </a>
+                            <a href="{% url 'budget:register' %}" class="btn btn-primary">
+                                <i class="bi bi-person-plus me-2"></i>Регистрация
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Кнопка меню для мобильных -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#mainNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+</header>
+
+<!-- Главная секция -->
+<section id="hero" class="hero-section">
+    <div class="hero-background">
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-xl-6 col-lg-6">
+                <div class="hero-content">
+                    <!-- Главный заголовок -->
+                    <h1 class="hero-title">
+                        Знайте, куда уходят деньги.<br>Решайте, куда они придут.
+                    </h1>
+
+                    <!-- Подзаголовок -->
+                    <p class="hero-subtitle">
+                        MoneyMind - элегантный инструмент для управления личными финансами, 
+                        который поможет вам достигать финансовых целей с легкостью и стилем.
+                    </p>
+
+                    <!-- Призыв к действию -->
+                    <div class="hero-actions">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'budget:transaction_list' %}" class="btn btn-primary btn-lg me-4">
+                                <i class="bi bi-graph-up me-2"></i>Перейти в дашборд
+                            </a>
+                        {% else %}
+                            <a href="{% url 'budget:register' %}" class="btn btn-primary btn-lg me-4">
+                                <i class="bi bi-person-plus me-2"></i>Зарегистрироваться
+                            </a>
+                            <a href="{% url 'budget:login' %}" class="btn btn-outline-primary btn-lg">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Войти
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Статистика -->
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">50K+</div>
+                            <div class="stat-label">пользователей</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">2.5M+</div>
+                            <div class="stat-label">операций</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">98%</div>
+                            <div class="stat-label">довольных клиентов</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6 col-lg-6">
+                <div class="hero-visual">
+                    <!-- Анимированный превью дашборда -->
+                    <div class="dashboard-preview">
+                        <div class="preview-header">
+                            <div class="preview-controls">
+                                <span class="control-dot"></span>
+                                <span class="control-dot"></span>
+                                <span class="control-dot"></span>
+                            </div>
+                            <div class="preview-title">MoneyMind Dashboard</div>
+                        </div>
+                        <div class="preview-content">
+                            <!-- Мини-графики -->
+                            <div class="preview-charts">
+                                <div class="mini-chart chart-income">
+                                    <div class="chart-bar" style="height: 70%"></div>
+                                    <span>Доходы</span>
+                                </div>
+                                <div class="mini-chart chart-expense">
+                                    <div class="chart-bar" style="height: 50%"></div>
+                                    <span>Расходы</span>
+                                </div>
+                                <div class="mini-chart chart-savings">
+                                    <div class="chart-bar" style="height: 85%"></div>
+                                    <span>Накопления</span>
+                                </div>
+                            </div>
+                            <!-- Быстрая статистика -->
+                            <div class="preview-stats">
+                                <div class="stat-card">
+                                    <i class="bi bi-arrow-up-circle text-success"></i>
+                                    <div>
+                                        <div class="stat-value">₽120,000</div>
+                                        <div class="stat-label">Баланс</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <i class="bi bi-bullseye text-primary"></i>
+                                    <div>
+                                        <div class="stat-value">75%</div>
+                                        <div class="stat-label">Прогресс целей</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- стрелка прокрутки -->
+    <div class="scroll-indicator">
+        <a href="#features" class="scroll-down">
+            <i class="bi bi-chevron-down"></i>
+        </a>
+    </div>
+</section>
+
+<!-- Раздел «Функции» -->
+<section id="features" class="py-5 bg-light-2">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-4 fw-bold text-dark mb-3">Элегантные возможности</h2>
+            <p class="lead text-gray-600">Интуитивный контроль над вашими финансами</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Возможности 1 -->
+            <div class="col-md-4">
+                <div class="feature-card card h-100 border-0 bg-white shadow-soft rounded-section" style="transform: none !important;">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-gradient-purple-soft rounded-2 mx-auto mb-4">
+                            <i class="bi bi-cash-stack text-white fs-1"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3 text-dark">Учет операций</h4>
+                        <p class="text-gray-600">Легко добавляйте и редактируйте финансовые операции с интуитивным интерфейсом.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Возможности 2 -->
+            <div class="col-md-4">
+                <div class="feature-card card h-100 border-0 bg-white shadow-soft rounded-section" style="transform: none !important;">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-gradient-purple-soft rounded-2 mx-auto mb-4">
+                            <i class="bi bi-bullseye text-white fs-1"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3 text-dark">Цели накопления</h4>
+                        <p class="text-gray-600">Ставьте цели и отслеживайте прогресс с визуальными индикаторами достижений.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Возможности 3 -->
+            <div class="col-md-4">
+                <div class="feature-card card h-100 border-0 bg-white shadow-soft rounded-section" style="transform: none !important;">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-gradient-purple-soft rounded-2 mx-auto mb-4">
+                            <i class="bi bi-pie-chart text-white fs-1"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3 text-dark">Визуальная аналитика</h4>
+                        <p class="text-gray-600">Красивые графики помогут понять структуру расходов и оптимизировать бюджет.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Раздел статистики -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 mb-4">
+                <div class="stat-item p-4 rounded-section">
+                    <div class="stat-icon bg-purple-soft rounded-2 mx-auto mb-3">
+                        <i class="bi bi-people text-purple fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark counter">50,000+</h3>
+                    <p class="text-gray-600">Довольных пользователей</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-item p-4 rounded-section">
+                    <div class="stat-icon bg-purple-soft rounded-2 mx-auto mb-3">
+                        <i class="bi bi-graph-up-arrow text-purple fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark counter">87%</h3>
+                    <p class="text-gray-600">Улучшили финансовые привычки</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-item p-4 rounded-section">
+                    <div class="stat-icon bg-purple-soft rounded-2 mx-auto mb-3">
+                        <i class="bi bi-currency-exchange text-purple fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark counter">2.5M+</h3>
+                    <p class="text-gray-600">Операций обработано</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-item p-4 rounded-section">
+                    <div class="stat-icon bg-purple-soft rounded-2 mx-auto mb-3">
+                        <i class="bi bi-award text-purple fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark counter">24/7</h3>
+                    <p class="text-gray-600">Техническая поддержка</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Раздел отзывов -->
+<section id="testimonials" class="py-5 bg-light-2">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-4 fw-bold text-dark mb-3">Истории успеха</h2>
+            <p class="lead text-gray-600">Наши пользователи делятся своими достижениями</p>
+        </div>
+
+        <div class="row">
+            <!-- Отзыв 1 -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-0 bg-white shadow-soft rounded-section" style="transform: none !important;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-avatar bg-gradient-purple-soft rounded-2 me-3">
+                                <span class="text-white">АС</span>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark">Анна С.</h5>
+                                <small class="text-gray-600">Использует 6 месяцев</small>
+                            </div>
+                        </div>
+                        <p class="mb-0 text-gray-600">"За полгода использования сервиса я смогла систематизировать расходы и начала откладывать 20% дохода. Интерфейс интуитивный, без лишних сложностей."</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Отзыв 2 -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-0 bg-white shadow-soft rounded-section" style="transform: none !important;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-avatar bg-gradient-purple-soft rounded-2 me-3">
+                                <span class="text-white">МК</span>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark">Михаил К.</h5>
+                                <small class="text-gray-600">Использует 1 год</small>
+                            </div>
+                        </div>
+                        <p class="mb-0 text-gray-600">"Благодаря системе целей я смог накопить на автомобиль. Аналитика расходов помогла найти неочевидные статьи, где можно было оптимизировать бюджет."</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Отзыв 3 -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-0 bg-white shadow-soft rounded-section" style="transform: none !important;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-avatar bg-gradient-purple-soft rounded-2 me-3">
+                                <span class="text-white">ЕВ</span>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark">Елена В.</h5>
+                                <small class="text-gray-600">Использует 3 месяца</small>
+                            </div>
+                        </div>
+                        <p class="mb-0 text-gray-600">"Как фрилансеру, мне было сложно планировать бюджет с нерегулярными доходами. MoneyMind помог создать финансовую подушку и систематизировать учет."</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Отзыв 4 -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-0 bg-white shadow-soft rounded-section" style="transform: none !important;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-avatar bg-gradient-purple-soft rounded-2 me-3">
+                                <span class="text-white">ДП</span>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark">Дмитрий П.</h5>
+                                <small class="text-gray-600">Использует 8 месяцев</small>
+                            </div>
+                        </div>
+                        <p class="mb-0 text-gray-600">"Сервис помог осознать, сколько уходило на импульсные покупки. Теперь я более осознанно подхожу к тратам и уже накопил на отпуск мечты."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Секция финансовой грамотности -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-4 fw-bold text-dark mb-3">Повышайте финансовую грамотность</h2>
+            <p class="lead text-gray-600">Полезные советы от наших экспертов</p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100 border-0 bg-white shadow-soft rounded-section" style="transform: none !important;">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-gradient-purple-soft rounded-2 mx-auto mb-4">
+                            <i class="bi bi-calendar-check text-white fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3 text-dark">Планируйте бюджет</h5>
+                        <p class="text-gray-600 small">Составляйте ежемесячный бюджет и придерживайтесь его, чтобы избежать неожиданных расходов.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100 border-0 bg-white shadow-soft rounded-section" style="transform: none !important;">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-gradient-purple-soft rounded-2 mx-auto mb-4">
+                            <i class="bi bi-piggy-bank text-white fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3 text-dark">Создайте сбережения</h5>
+                        <p class="text-gray-600 small">Старайтесь откладывать хотя бы 10% от каждого дохода для создания финансовой подушки безопасности.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100 border-0 bg-white shadow-soft rounded-section" style="transform: none !important;">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-gradient-purple-soft rounded-2 mx-auto mb-4">
+                            <i class="bi bi-graph-up-arrow text-white fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3 text-dark">Анализируйте расходы</h5>
+                        <p class="text-gray-600 small">Регулярно анализируйте свои траты, чтобы находить возможности для оптимизации бюджета.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100 border-0 bg-white shadow-soft rounded-section" style="transform: none !important;">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-gradient-purple-soft rounded-2 mx-auto mb-4">
+                            <i class="bi bi-lightbulb text-white fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3 text-dark">Ставьте цели</h5>
+                        <p class="text-gray-600 small">Определяйте финансовые цели и создавайте план для их достижения с помощью нашего сервиса.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Раздел мотивации -->
+<section class="py-5 bg-gradient-purple-soft text-white">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <div class="motivation-card p-5 rounded-section bg-white-10 shadow-soft">
+                    <i class="bi bi-stars display-4 mb-4 text-white"></i>
+                    <h3 class="fw-bold mb-4">Финансовая свобода начинается с осознанного управления деньгами</h3>
+                    <p class="mb-0 opacity-80">Присоединяйтесь к сообществу людей, которые уже изменили свою финансовую жизнь</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Раздел призыва к действию -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h2 class="display-5 fw-bold text-dark mb-4">Начните свой путь к финансовой свободе</h2>
+                <p class="lead text-gray-600 mb-4">Присоединяйтесь к тысячам пользователей, которые доверяют нам свои финансы</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'budget:transaction_list' %}" class="btn btn-gradient-purple btn-lg rounded-xl px-5 py-3">
+                    <i class="bi bi-graph-up me-2"></i>Перейти к дашборду
+                </a>
+                {% else %}
+                <a href="{% url 'budget:register' %}" class="btn btn-gradient-purple btn-lg rounded-xl px-5 py-3 me-3">
+                    <i class="bi bi-person-plus me-2"></i>Начать бесплатно
+                </a>
+                <a href="{% url 'budget:login' %}" class="btn btn-outline-purple btn-lg rounded-xl px-5 py-3">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Войти в аккаунт
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Новости о финансах -->
+<section class="bg-dark-2 section">
+    <div class="container">
+        <h2 class="text-center text-white mb-5">Последние новости финансового мира</h2>
+        
+        <div class="row g-4">
+            <!-- Новость 1 -->
+            <div class="col-md-4">
+                <div class="card news-card h-100 border-0 bg-dark rounded-section">
+                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80" class="card-img-top" alt="Финансовые рынки">
+                    <div class="card-body">
+                        <span class="news-date">15 сентября 2025</span>
+                        <h5 class="card-title text-white mt-2">Изменения на финансовых рынках</h5>
+                        <p class="card-text text-light">Аналитики прогнозируют рост ключевых индексов в следующем квартале благодаря стабилизации экономической ситуации.</p>
+                        
+                        <!-- Аккордеон контент -->
+                        <div class="accordion-content mt-3" style="display: none;">
+                            <div class="border-top pt-3">
+                                <p class="text-light small">Основные индексы S&P 500 и NASDAQ показали рост на 5% и 7% соответственно. Эксперты связывают это с улучшением макроэкономических показателей и снижением инфляционного давления.</p>
+                                <p class="text-light small">Рекомендации для инвесторов: обратить внимание на сектор технологий и здравоохранения.</p>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-sm btn-outline-purple read-more-btn mt-2" data-bs-toggle="collapse" data-bs-target="#news1">
+                            <span class="show-text">Читать далее</span>
+                            <span class="hide-text" style="display: none;">Скрыть</span>
+                        </button>
+                        
+                        <!-- Collapse контент для мобильных -->
+                        <div class="collapse" id="news1">
+                            <div class="border-top pt-3 mt-2">
+                                <p class="text-light small">Основные индексы S&P 500 и NASDAQ показали рост на 5% и 7% соответственно. Эксперты связывают это с улучшением макроэкономических показателей и снижением инфляционного давления.</p>
+                                <p class="text-light small">Рекомендации для инвесторов: обратить внимание на сектор технологий и здравоохранения.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Новость 2 -->
+            <div class="col-md-4">
+                <div class="card news-card h-100 border-0 bg-dark rounded-section">
+                    <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80" class="card-img-top" alt="Инвестиции">
+                    <div class="card-body">
+                        <span class="news-date">12 сентября 2025</span>
+                        <h5 class="card-title text-white mt-2">Новые тренды в инвестировании</h5>
+                        <p class="card-text text-light">Криптовалюты и ESG-инвестиции продолжают набирать популярность среди частных инвесторов.</p>
+                        
+                        <!-- Аккордеон контент -->
+                        <div class="accordion-content mt-3" style="display: none;">
+                            <div class="border-top pt-3">
+                                <p class="text-light small">Согласно исследованию Bloomberg, объем инвестиций в ESG-фонды вырос на 45% за последний год. Криптовалютные активы привлекли более $2 млрд институциональных инвестиций.</p>
+                                <p class="text-light small">Топ-3 тренда: устойчивые инвестиции, DeFi платформы, токенизация активов.</p>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-sm btn-outline-purple read-more-btn mt-2" data-bs-toggle="collapse" data-bs-target="#news2">
+                            <span class="show-text">Читать далее</span>
+                            <span class="hide-text" style="display: none;">Скрыть</span>
+                        </button>
+                        
+                        <!-- Collapse контент для мобильных -->
+                        <div class="collapse" id="news2">
+                            <div class="border-top pt-3 mt-2">
+                                <p class="text-light small">Согласно исследованию Bloomberg, объем инвестиций в ESG-фонды вырос на 45% за последний год. Криптовалютные активы привлекли более $2 млрд институциональных инвестиций.</p>
+                                <p class="text-light small">Топ-3 тренда: устойчивые инвестиции, DeFi платформы, токенизация активов.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Новость 3 -->
+            <div class="col-md-4">
+                <div class="card news-card h-100 border-0 bg-dark rounded-section">
+                    <img src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80" class="card-img-top" alt="Налоги">
+                    <div class="card-body">
+                        <span class="news-date">8 сентября 2025</span>
+                        <h5 class="card-title text-white mt-2">Изменения в налоговом законодательстве</h5>
+                        <p class="card-text text-light">С 2026 года ожидаются изменения в налоговом кодексе, которые затронут малый бизнес и фрилансеров.</p>
+                        
+                        <!-- Аккордеон контент -->
+                        <div class="accordion-content mt-3" style="display: none;">
+                            <div class="border-top pt-3">
+                                <p class="text-light small">Планируется введение прогрессивной шкалы НДФЛ для доходов свыше 5 млн рублей в год. Для самозанятых увеличат лимит годового дохода до 3 млн рублей без необходимости регистрации ИП.</p>
+                                <p class="text-light small">Новые налоговые вычеты для IT-специалистов и инвестиций в стартапы.</p>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-sm btn-outline-purple read-more-btn mt-2" data-bs-toggle="collapse" data-bs-target="#news3">
+                            <span class="show-text">Читать далее</span>
+                            <span class="hide-text" style="display: none;">Скрыть</span>
+                        </button>
+                        
+                        <!-- Collapse контент для мобильных -->
+                        <div class="collapse" id="news3">
+                            <div class="border-top pt-3 mt-2">
+                                <p class="text-light small">Планируется введение прогрессивной шкалы НДФЛ для доходов свыше 5 млн рублей в год. Для самозанятых увеличат лимит годового дохода до 3 млн рублей без необходимости регистрации ИП.</p>
+                                <p class="text-light small">Новые налоговые вычеты для IT-специалистов и инвестиций в стартапы.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Секция "О нас" -->
+<section id="about" class="py-5 bg-white">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="display-5 fw-bold text-dark mb-4">О проекте MoneyMind</h2>
+                <p class="lead text-gray-600 mb-5">
+                    MoneyMind создан для того, чтобы помочь вам взять под контроль свои финансы 
+                    и достичь финансовой свободы. Мы верим, что каждый заслуживает ясности 
+                    в своих денежных вопросах.
+                </p>
+                
+                <div class="row mt-5">
+                    <div class="col-md-4 mb-4">
+                        <div class="about-feature rounded-section p-4">
+                            <i class="bi bi-shield-check display-4 text-primary mb-3"></i>
+                            <h5>Безопасность</h5>
+                            <p class="text-muted">Ваши данные защищены современными методами шифрования</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="about-feature rounded-section p-4">
+                            <i class="bi bi-graph-up display-4 text-success mb-3"></i>
+                            <h5>Аналитика</h5>
+                            <p class="text-muted">Подробные отчеты и визуализация ваших финансов</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="about-feature rounded-section p-4">
+                            <i class="bi bi-headset display-4 text-info mb-3"></i>
+                            <h5>Поддержка</h5>
+                            <p class="text-muted">Мы всегда готовы помочь с любыми вопросами</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Форма обратной связи -->
+<section id="contact" class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="rounded-section bg-white p-4 shadow-soft">
+                    <h2 class="text-center mb-4">Свяжитесь с нами</h2>
+                    <form id="contact-form">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Имя</label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Сообщение</label>
+                            <textarea class="form-control" id="message" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Отправить сообщение</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Вопросы и ответы -->
+<section class="bg-gradient-purple-soft section text-white">
+    <div class="container">
+        <h2 class="text-center mb-5">Часто задаваемые вопросы</h2>
+        
+        <div class="accordion accordion-flush rounded-section" id="faqAccordion">
+            <div class="accordion-item bg-transparent text-white border-0 mb-3">
+                <h3 class="accordion-header" id="headingOne">
+                    <button class="accordion-button bg-transparent text-white collapsed" type="button" 
+                            data-bs-toggle="collapse" data-bs-target="#collapseOne" 
+                            aria-expanded="false" aria-controls="collapseOne">
+                        Как начать пользоваться MoneyMind?
+                    </button>
+                </h3>
+                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" 
+                     data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-white-80">
+                        Для начала работы с MoneyMind просто зарегистрируйтесь на нашем сайте, заполнив базовую информацию о себе. После регистрации вы сможете добавить свои первые финансовые операции, создать бюджет и поставить финансовые цели.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item bg-transparent text-white border-0 mb-3">
+                <h3 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button bg-transparent text-white collapsed" type="button" 
+                            data-bs-toggle="collapse" data-bs-target="#collapseTwo" 
+                            aria-expanded="false" aria-controls="collapseTwo">
+                        Безопасно ли хранить свои финансовые данные в MoneyMind?
+                    </button>
+                </h3>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" 
+                     data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-white-80">
+                        Да, мы используем современные методы шифрования и защиты данных. Ваша финансовая информация хранится в зашифрованном виде, и мы никогда не передаем ваши данные третьим лицам без вашего явного согласия.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item bg-transparent text-white border-0 mb-3">
+                <h3 class="accordion-header" id="headingThree">
+                    <button class="accordion-button bg-transparent text-white collapsed" type="button" 
+                            data-bs-toggle="collapse" data-bs-target="#collapseThree" 
+                            aria-expanded="false" aria-controls="collapseThree">
+                        Можно ли синхронизировать данные с банковскими счетами?
+                        <span class="badge bg-light text-purple ms-2">Скоро</span>
+                    </button>
+                </h3>
+                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" 
+                     data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-white-80">
+                        В настоящее время мы работаем над интеграцией с крупнейшими банками. Синхронизация станет доступна в одном из ближайших обновлений. Пока вы можете импортировать выписки вручную.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item bg-transparent text-white border-0 mb-3">
+                <h3 class="accordion-header" id="headingFour">
+                    <button class="accordion-button bg-transparent text-white collapsed" type="button" 
+                            data-bs-toggle="collapse" data-bs-target="#collapseFour" 
+                            aria-expanded="false" aria-controls="collapseFour">
+                        Есть ли мобильное приложение MoneyMind?
+                        <span class="badge bg-warning text-dark ms-2">В разработке</span>
+                    </button>
+                </h3>
+                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" 
+                     data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-white-80">
+                        Мобильное приложение находится в активной разработке. Ожидайте его запуск в следующем квартале. Следите за обновлениями на нашем сайте.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Улучшенный хедер для больших экранов */
+.main-header {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.navbar {
+    padding: 1rem 0;
+}
+
+.brand-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.brand-icon {
+    font-size: 2.2rem;
+    color: #8B5CF6;
+    background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.brand-text {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1E293B;
+}
+
+.brand-accent {
+    background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Навигационное меню */
+.navbar-nav .nav-link {
+    color: #64748B !important;
+    font-weight: 600;
+    padding: 0.5rem 1.2rem !important;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #8B5CF6 !important;
+    background: rgba(139, 92, 246, 0.08);
+    transform: translateY(-1px);
+}
+
+.navbar-nav .nav-link i {
+    font-size: 1.1rem;
+}
+
+/* Секция авторизации */
+.auth-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.guest-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Кнопки */
+.btn-primary {
+    background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+}
+
+.btn-outline-primary {
+    border: 2px solid #8B5CF6;
+    color: #8B5CF6;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background: #8B5CF6;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Выпадающее меню пользователя */
+.user-dropdown .dropdown-toggle {
+    border: 2px solid #E2E8F0;
+    background: white;
+    color: #64748B;
+}
+
+.user-dropdown .dropdown-toggle:hover {
+    border-color: #8B5CF6;
+    color: #8B5CF6;
+}
+
+.dropdown-menu {
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem;
+}
+
+.dropdown-item {
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background: rgba(139, 92, 246, 0.08);
+    color: #8B5CF6;
+}
+
+/* Герой-секция */
+.hero-section {
+    background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.floating-shapes .shape {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(167, 139, 250, 0.05) 100%);
+    animation: float 8s ease-in-out infinite;
+}
+
+.shape-1 {
+    width: 400px;
+    height: 400px;
+    top: -200px;
+    right: -100px;
+    animation-delay: 0s;
+}
+
+.shape-2 {
+    width: 300px;
+    height: 300px;
+    bottom: -150px;
+    left: 10%;
+    animation-delay: 2s;
+}
+
+.shape-3 {
+    width: 200px;
+    height: 200px;
+    top: 20%;
+    right: 20%;
+    animation-delay: 4s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    color: #1E293B;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: #64748B;
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    max-width: 90%;
+}
+
+/* Действия героя */
+.hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+.btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+}
+
+/* Статистика героя */
+.hero-stats {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1E293B;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #64748B;
+    font-weight: 500;
+}
+
+/* Визуальная часть героя */
+.hero-visual {
+    position: relative;
+    z-index: 2;
+}
+
+.dashboard-preview {
+    background: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 500px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.preview-header {
+    background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.preview-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.control-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.preview-title {
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.preview-content {
+    padding: 2rem;
+}
+
+.preview-charts {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 2rem;
+}
+
+.mini-chart {
+    text-align: center;
+}
+
+.chart-bar {
+    width: 40px;
+    background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+    border-radius: 0.5rem;
+    margin: 0 auto 0.5rem;
+    transition: height 0.3s ease;
+}
+
+.mini-chart span {
+    font-size: 0.8rem;
+    color: #64748B;
+    font-weight: 500;
+}
+
+.preview-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: #F8FAFC;
+    border-radius: 0.75rem;
+}
+
+.stat-card i {
+    font-size: 1.5rem;
+}
+
+.stat-value {
+    font-weight: 700;
+    color: #1E293B;
+    font-size: 1.1rem;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #64748B;
+}
+
+/* Индикатор прокрутки */
+.scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+.scroll-down {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: #8B5CF6;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.scroll-down:hover {
+    color: #7C3AED;
+    transform: translateY(-5px);
+}
+
+.scroll-down i {
+    font-size: 1.5rem;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+/* Адаптивность для очень больших экранов */
+@media (min-width: 1400px) {
+    .hero-title {
+        font-size: 4rem;
+    }
+    
+    .dashboard-preview {
+        max-width: 600px;
+    }
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-stats {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .hero-actions {
+        flex-direction: column;
+    }
+}
+
+/* Глобальные исправления для overflow */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+.container {
+    max-width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Новый класс для скругленных секций с правильными отступами */
+.rounded-section {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* Убираем скругление у контейнеров на мобильных, чтобы не было отступов */
+@media (max-width: 768px) {
+    .rounded-section {
+        border-radius: 12px;
+    }
+    
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
+
+/* Убираем скругление у hero секции */
+.hero-section {
+    border-radius: 0 !important;
+}
+
+/* СТИЛИ ДЛЯ СТРЕЛКИ ПРОКРУТКИ */
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    text-align: center;
+}
+
+.scroll-down {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #8B5CF6;
+    font-size: 2.5rem;
+    animation: bounce 2s infinite;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(139, 92, 246, 0.3);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+}
+
+.scroll-down:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: #8B5CF6;
+    transform: scale(1.1);
+    color: #8B5CF6;
+    animation: none;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+/* ОСНОВНЫЕ СТИЛИ */
+.btn-gradient-purple {
+    background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+}
+
+.btn-gradient-purple:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.3);
+    color: white;
+}
+
+.btn-outline-purple {
+    border: 2px solid #8B5CF6;
+    color: #8B5CF6;
+    background: transparent;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+}
+
+.btn-outline-purple:hover {
+    background: #8B5CF6;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.2);
+}
+
+:root {
+    --purple-primary: #8B5CF6;
+    --purple-light: #A78BFA;
+    --purple-lighter: #C4B5FD;
+    --purple-soft: #EDE9FE;
+    --gray-100: #F8FAFC;
+    --gray-200: #F1F5F9;
+    --gray-300: #E2E8F0;
+    --gray-600: #475569;
+    --gray-800: #1E293B;
+    --gradient-purple: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+    --gradient-purple-soft: linear-gradient(135deg, #A78BFA 0%, #C4B5FD 100%);
+}
+
+/* Главная секция */
+.hero-section {
+    background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 100%;
+    height: 200%;
+    background: radial-gradient(circle, var(--purple-soft) 0%, transparent 70%);
+    opacity: 0.6;
+}
+
+/* Цвета фона */
+.bg-light-2 {
+    background-color: var(--gray-100) !important;
+}
+
+.bg-white {
+    background-color: #FFFFFF !important;
+}
+
+.bg-purple-soft {
+    background-color: var(--purple-soft) !important;
+}
+
+.bg-gradient-purple-soft {
+    background: var(--gradient-purple-soft) !important;
+}
+
+.bg-white-10 {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(20px);
+}
+
+/* Цвета текста */
+.text-dark {
+    color: var(--gray-800) !important;
+}
+
+.text-gray-600 {
+    color: var(--gray-600) !important;
+}
+
+.text-purple {
+    color: var(--purple-primary) !important;
+}
+
+/* Карты и тени*/
+.shadow-soft {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08) !important;
+}
+
+.feature-card {
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12) !important;
+}
+
+.testimonial-card {
+    transition: all 0.3s ease;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Иконки и элементы */
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.testimonial-avatar {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* Граница радиуса */
+.rounded-xl {
+    border-radius: 16px !important;
+}
+
+.rounded-2 {
+    border-radius: 12px !important;
+}
+
+.rounded-3 {
+    border-radius: 20px !important;
+}
+
+/* Анимации */
+.animate-fade-in {
+    animation: fadeIn 1s ease-out;
+}
+
+.animate-fade-in-delay {
+    animation: fadeIn 1s ease-out 0.3s both;
+}
+
+.animate-slide-up {
+    animation: slideUp 1s ease-out 0.6s both;
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(30px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+@keyframes float {
+    0%, 100% { 
+        transform: translateY(0px) rotate(0deg); 
+    }
+    50% { 
+        transform: translateY(-15px) rotate(3deg); 
+    }
+}
+
+/* Новости */
+.news-card {
+    transition: all 0.3s ease;
+    border: 1px solid #374151;
+}
+
+.news-card:hover {
+    transform: translateY(-5px);
+    border-color: #8B5CF6;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+}
+
+.news-date {
+    color: #9CA3AF;
+    font-size: 0.875rem;
+}
+
+.accordion-content {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Hover */
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+}
+
+/* Адаптация */
+@media (max-width: 768px) {
+    .display-3 {
+        font-size: 2rem !important;
+    }
+    
+    .display-4 {
+        font-size: 1.8rem !important;
+    }
+    
+    .hero-section {
+        text-align: center;
+        padding: 60px 0 30px;
+    }
+    
+    .btn {
+        margin-bottom: 12px;
+        width: 100%;
+        max-width: 280px;
+    }
+    
+    .btn.me-3 {
+        margin-right: 0 !important;
+    }
+    
+    /* Адаптация для хедера на мобильных */
+    header {
+        padding: 6px 0;
+    }
+    
+    .auth-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .auth-buttons .btn {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    /* Адаптация стрелки для мобильных */
+    .scroll-down {
+        width: 50px;
+        height: 50px;
+        font-size: 2rem;
+    }
+    
+    .scroll-indicator {
+        bottom: 20px;
+    }
+    
+    /* Уменьшаем отступы текста на мобильных */
+    .ps-4, .ps-lg-5 {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+    
+    .hero-image img {
+        max-height: 400px !important;
+    }
+}
+
+/* стили для FAQ секции */
+.bg-gradient-purple-soft {
+    background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%) !important;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    box-shadow: none;
+}
+
+.accordion-button::after {
+    filter: brightness(0) invert(1); 
+}
+
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.text-white-80 {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.bg-dark-2 {
+    background-color: #2D3748 !important;
+}
+
+.bg-dark {
+    background-color: #1A202C !important;
+}
+
+/* отступы между секциями */
+.section {
+    padding: 4rem 0;
+}
+
+.section-sm {
+    padding: 2rem 0;
+}
+
+.badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Плавная прокрутка для всей страницы */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Отступ для фиксированного хедера при прокрутке по якорям */
+#features {
+    scroll-margin-top: 60px;
+}
+</style>
+
+<script>
+// Анимация появления элементов при скролле
+document.addEventListener('DOMContentLoaded', function() {
+    // Плавное появление элементов при загрузке
+    const heroElements = document.querySelectorAll('.hero-content > *');
+    heroElements.forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        setTimeout(() => {
+            el.style.transition = 'all 0.6s ease';
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
+
+    // Изменение хедера при скролле
+    window.addEventListener('scroll', function() {
+        const header = document.querySelector('.main-header');
+        if (window.scrollY > 100) {
+            header.style.background = 'rgba(255, 255, 255, 0.98)';
+            header.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.1)';
+        } else {
+            header.style.background = 'rgba(255, 255, 255, 0.98)';
+            header.style.boxShadow = '0 2px 30px rgba(0, 0, 0, 0.08)';
+        }
+    });
+
+    // Анимация графиков в превью
+    const chartBars = document.querySelectorAll('.chart-bar');
+    setTimeout(() => {
+        chartBars.forEach(bar => {
+            const height = bar.style.height;
+            bar.style.height = '0%';
+            setTimeout(() => {
+                bar.style.transition = 'height 1s ease';
+                bar.style.height = height;
+            }, 500);
+        });
+    }, 1000);
+
+    // Счетная анимация
+    const counters = document.querySelectorAll('.counter');
+    const speed = 200;
+    
+    counters.forEach(counter => {
+        let targetText = counter.innerText;
+        let isPercentage = targetText.includes('%');
+        let isPlus = targetText.includes('+');
+        
+        // Извлекаем числовое значение
+        let target = parseFloat(targetText.replace(/[^0-9.]/g, ''));
+        
+        let count = 0;
+        
+        const updateCount = () => {
+            const increment = target / speed;
+            
+            if (count < target) {
+                count += increment;
+                let displayValue = Math.ceil(count);
+                
+                if (isPercentage) {
+                    counter.innerText = displayValue + '%';
+                } else if (isPlus) {
+                    counter.innerText = displayValue.toLocaleString() + '+';
+                } else {
+                    counter.innerText = displayValue.toLocaleString();
+                }
+                
+                setTimeout(updateCount, 1);
+            } else {
+                // Финальное значение
+                if (isPercentage) {
+                    counter.innerText = target + '%';
+                } else if (isPlus) {
+                    counter.innerText = target.toLocaleString() + '+';
+                } else {
+                    counter.innerText = target.toLocaleString();
+                }
+            }
+        };
+        
+        updateCount();
+    });
+
+    // Плавная прокрутка с учетом фиксированного хедера
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                const headerHeight = document.querySelector('header').offsetHeight;
+                const targetPosition = targetElement.offsetTop - headerHeight;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

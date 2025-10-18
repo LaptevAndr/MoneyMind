@@ -1,0 +1,386 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if loan %}Редактировать{% else %}Добавить{% endif %} кредит - MoneyMind{% endblock %}
+
+{% block content %}
+<div class="dashboard-theme">
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <!-- Кнопка назад -->
+                <div class="mb-4">
+                    <a href="{% url 'budget:loans_list' %}" class="btn btn-outline-secondary btn-lg">
+                        <i class="bi bi-arrow-left me-2"></i>Назад к кредитам
+                    </a>
+                </div>
+
+                <!-- Основная карточка формы -->
+                <div class="card shadow-soft">
+                    <div class="card-header bg-gradient-purple text-white">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-{% if loan %}pencil{% else %}credit-card{% endif %} display-6 me-3"></i>
+                            <div>
+                                <h4 class="card-title mb-1">
+                                    {% if loan %}Редактировать кредит{% else %}Добавить кредит{% endif %}
+                                </h4>
+                                <p class="text-white-50 mb-0">Управление кредитными обязательствами</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold text-dark mb-3">
+                                        <i class="bi bi-pencil text-primary me-2"></i>
+                                        {{ form.name.label }}
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                    <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.initial_amount.id_for_label }}" class="form-label fw-semibold text-dark mb-3">
+                                        <i class="bi bi-currency-dollar text-warning me-2"></i>
+                                        Сумма кредита
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.initial_amount }}
+                                    {% if form.initial_amount.errors %}
+                                    <div class="text-danger small mt-1">{{ form.initial_amount.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.interest_rate.id_for_label }}" class="form-label fw-semibold text-dark mb-3">
+                                        <i class="bi bi-percent text-danger me-2"></i>
+                                        Процентная ставка
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        {{ form.interest_rate }}
+                                        <span class="input-group-text bg-light border-start-0">%</span>
+                                    </div>
+                                    <div class="form-text text-muted mt-2">
+                                        <i class="bi bi-info-circle me-1"></i>Укажите 0 для беспроцентного кредита
+                                    </div>
+                                    {% if form.interest_rate.errors %}
+                                    <div class="text-danger small mt-1">{{ form.interest_rate.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.paid_amount.id_for_label }}" class="form-label fw-semibold text-dark mb-3">
+                                        <i class="bi bi-cash-coin text-success me-2"></i>
+                                        Уже выплачено
+                                    </label>
+                                    {{ form.paid_amount }}
+                                    {% if form.paid_amount.errors %}
+                                    <div class="text-danger small mt-1">{{ form.paid_amount.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.start_date.id_for_label }}" class="form-label fw-semibold text-dark mb-3">
+                                        <i class="bi bi-calendar text-info me-2"></i>
+                                        Дата начала
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.start_date }}
+                                    {% if form.start_date.errors %}
+                                    <div class="text-danger small mt-1">{{ form.start_date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.end_date.id_for_label }}" class="form-label fw-semibold text-dark mb-3">
+                                        <i class="bi bi-calendar-check text-info me-2"></i>
+                                        Дата окончания
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.end_date }}
+                                    {% if form.end_date.errors %}
+                                    <div class="text-danger small mt-1">{{ form.end_date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Калькулятор кредита -->
+                            <div id="loan-calculator" class="alert alert-info rounded-xl d-none">
+                                <h6 class="alert-heading mb-3">
+                                    <i class="bi bi-calculator me-2"></i>Предварительный расчет
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-4 mb-2">
+                                        <small class="text-muted">Общая сумма к возврату:</small>
+                                        <div id="total-amount" class="fw-bold fs-5">0 ₽</div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <small class="text-muted">Ежемесячный платеж:</small>
+                                        <div id="monthly-payment" class="fw-bold fs-5">0 ₽</div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <small class="text-muted">Срок кредита:</small>
+                                        <div id="loan-term" class="fw-bold fs-5">0 месяцев</div>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">* Расчет приблизительный по аннуитетной схеме</small>
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-3 mt-4 pt-4 border-top">
+                                <button type="submit" class="btn btn-primary btn-lg flex-fill">
+                                    <i class="bi bi-check-circle me-2"></i>
+                                    {% if loan %}Сохранить изменения{% else %}Добавить кредит{% endif %}
+                                </button>
+                                <a href="{% url 'budget:loans_list' %}" class="btn btn-outline-secondary btn-lg">
+                                    <i class="bi bi-x-circle me-2"></i>Отмена
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Карточка с рекомендациями -->
+                <div class="card mt-4 shadow-soft">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3 text-dark">
+                            <i class="bi bi-info-circle text-info me-2"></i>Рекомендации по управлению кредитами
+                        </h6>
+                        <div class="alert alert-warning rounded-xl mb-4">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Важно:</strong> Регулярно отслеживайте остаток долга и своевременно вносите платежи
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-3">
+                                        <i class="bi bi-check-circle text-success me-2"></i>
+                                        <strong>Вносите платежи вовремя</strong>
+                                        <p class="text-muted mb-0 small">Избегайте штрафов за просрочку</p>
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="bi bi-check-circle text-success me-2"></i>
+                                        <strong>Учитывайте в бюджете</strong>
+                                        <p class="text-muted mb-0 small">Планируйте расходы с учетом кредитных платежей</p>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-3">
+                                        <i class="bi bi-check-circle text-success me-2"></i>
+                                        <strong>Следите за ставками</strong>
+                                        <p class="text-muted mb-0 small">Отслеживайте изменение процентных ставок</p>
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="bi bi-check-circle text-success me-2"></i>
+                                        <strong>Досрочное погашение</strong>
+                                        <p class="text-muted mb-0 small">Рассматривайте возможность досрочного погашения</p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calculator = document.getElementById('loan-calculator');
+    const totalAmountEl = document.getElementById('total-amount');
+    const monthlyPaymentEl = document.getElementById('monthly-payment');
+    const loanTermEl = document.getElementById('loan-term');
+    
+    function calculateLoan() {
+        const initialAmount = parseFloat(document.getElementById('id_initial_amount').value) || 0;
+        const interestRate = parseFloat(document.getElementById('id_interest_rate').value) || 0;
+        const startDateInput = document.getElementById('id_start_date');
+        const endDateInput = document.getElementById('id_end_date');
+        
+        const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
+        const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+        
+        if (initialAmount > 0 && startDate && endDate && endDate > startDate) {
+            const months = Math.max(1, (endDate.getFullYear() - startDate.getFullYear()) * 12 + 
+                          (endDate.getMonth() - startDate.getMonth()));
+            
+            let totalAmount, monthlyPayment;
+            
+            if (interestRate > 0) {
+                const monthlyRate = interestRate / 100 / 12;
+                totalAmount = initialAmount * Math.pow(1 + monthlyRate, months);
+                monthlyPayment = (initialAmount * monthlyRate * Math.pow(1 + monthlyRate, months)) / 
+                               (Math.pow(1 + monthlyRate, months) - 1);
+            } else {
+                totalAmount = initialAmount;
+                monthlyPayment = initialAmount / months;
+            }
+            
+            totalAmountEl.textContent = totalAmount.toLocaleString('ru-RU', {maximumFractionDigits: 2}) + ' ₽';
+            monthlyPaymentEl.textContent = monthlyPayment.toLocaleString('ru-RU', {maximumFractionDigits: 2}) + ' ₽';
+            loanTermEl.textContent = months + ' месяцев';
+            calculator.classList.remove('d-none');
+            return;
+        }
+        
+        calculator.classList.add('d-none');
+    }
+    
+    // Слушаем изменения в полях формы
+    ['id_initial_amount', 'id_interest_rate', 'id_start_date', 'id_end_date'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('input', calculateLoan);
+            element.addEventListener('change', calculateLoan);
+        }
+    });
+    
+    // Улучшаем стиль форм
+    const formControls = document.querySelectorAll('input, select, textarea');
+    formControls.forEach(control => {
+        control.classList.add('form-control', 'form-control-lg');
+        if (control.tagName === 'SELECT') {
+            control.classList.add('form-select', 'form-select-lg');
+        }
+    });
+    
+    // Первоначальный расчет
+    calculateLoan();
+});
+</script>
+
+<style>
+.dashboard-theme {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+}
+
+.card {
+    border: none;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.shadow-soft {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08) !important;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12) !important;
+}
+
+.bg-gradient-purple {
+    background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%) !important;
+}
+
+.card-header {
+    border-radius: 16px 16px 0 0 !important;
+    padding: 1.5rem 2rem;
+}
+
+.form-control, .form-select {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+}
+
+.form-control-lg {
+    font-size: 1.1rem;
+}
+
+.btn {
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+}
+
+.btn-outline-secondary {
+    border: 2px solid #e2e8f0;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f8fafc;
+    border-color: #8B5CF6;
+    color: #8B5CF6;
+}
+
+.text-white-50 {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.rounded-xl {
+    border-radius: 16px !important;
+}
+
+.alert-info {
+    border: none;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e40af;
+}
+
+.alert-warning {
+    border: none;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+}
+
+.input-group-text {
+    background-color: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+}
+
+.fs-5 {
+    font-size: 1.25rem !important;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem !important;
+    }
+    
+    .btn-lg {
+        padding: 0.75rem 1rem;
+    }
+    
+    .display-6 {
+        font-size: 2rem;
+    }
+    
+    .col-md-4, .col-md-6 {
+        width: 100% !important;
+    }
+}
+</style>
+{% endblock %}

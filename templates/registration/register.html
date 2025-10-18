@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}MoneyMind - Регистрация{% endblock %}
+
+{% block content %}
+<div class="auth-theme">
+    <div class="auth-container">
+        <!-- Floating elements -->
+        <div class="floating-element floating-1"></div>
+        <div class="floating-element floating-2"></div>
+        <div class="floating-element floating-3"></div>
+        
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8 col-sm-10">
+                    <div class="auth-card">
+                        <div class="auth-card-header">
+                            <div class="mb-3">
+                                <i class="bi bi-person-plus display-4"></i>
+                            </div>
+                            <h2 class="fw-bold mb-2">Создайте аккаунт</h2>
+                            <p class="opacity-90">Присоединяйтесь к MoneyMind сегодня</p>
+                        </div>
+                        
+                        <div class="auth-card-body">
+                            {% if messages %}
+                            <div class="messages mb-3">
+                                {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    <i class="bi bi-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <strong>Ошибки в форме:</strong>
+                                <ul class="mb-0 mt-2">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                    <li>{{ field }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+
+                            <form method="post" action="{% url 'budget:register' %}">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="id_first_name" class="form-label fw-semibold">Имя *</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="bi bi-person"></i>
+                                            </span>
+                                            <input type="text" class="form-control" id="id_first_name" name="first_name" 
+                                                   value="{{ form.first_name.value|default:'' }}" placeholder="Ваше имя" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="id_last_name" class="form-label fw-semibold">Фамилия *</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="bi bi-person"></i>
+                                            </span>
+                                            <input type="text" class="form-control" id="id_last_name" name="last_name" 
+                                                   value="{{ form.last_name.value|default:'' }}" placeholder="Ваша фамилия" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="id_email" class="form-label fw-semibold">Email *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="bi bi-envelope"></i>
+                                        </span>
+                                        <input type="email" class="form-control" id="id_email" name="email" 
+                                               value="{{ form.email.value|default:'' }}" placeholder="your@email.com" required>
+                                    </div>
+                                </div>
+                                
+                                <!-- Скрытое поле username -->
+                                <div style="display: none;">
+                                    <input type="text" id="id_username" name="username" value="{{ form.email.value|default:'' }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="id_password1" class="form-label fw-semibold">Пароль *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="bi bi-lock"></i>
+                                        </span>
+                                        <input type="password" class="form-control" id="id_password1" name="password1" 
+                                               placeholder="Создайте пароль" required>
+                                    </div>
+                                    <div class="form-text">
+                                        <small>Пароль должен содержать не менее 8 символов, включая цифры и буквы</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="id_password2" class="form-label fw-semibold">Подтверждение пароля *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="bi bi-lock"></i>
+                                        </span>
+                                        <input type="password" class="form-control" id="id_password2" name="password2" 
+                                               placeholder="Повторите пароль" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                                    <label class="form-check-label" for="terms">
+                                        Я соглашаюсь с 
+                                        <a href="#" class="text-decoration-none">условиями использования</a> 
+                                        и <a href="#" class="text-decoration-none">политикой конфиденциальности</a>
+                                    </label>
+                                </div>
+                                
+                                <div class="d-grid gap-2 mb-3">
+                                    <button type="submit" class="btn btn-primary btn-lg py-2">
+                                        <i class="bi bi-person-plus me-2"></i>Создать аккаунт
+                                    </button>
+                                </div>
+                                
+                                <div class="divider">
+                                    <span class="text-muted">Уже есть аккаунт?</span>
+                                </div>
+                                
+                                <div class="text-center">
+                                    <p class="mb-0 text-muted">
+                                        Уже зарегистрированы? 
+                                        <a href="{% url 'budget:login' %}" class="text-decoration-none fw-semibold">
+                                            Войти в аккаунт
+                                        </a>
+                                    </p>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <small class="text-white opacity-75">
+                            © 2025 MoneyMind. Ваш личный финансовый помощник
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const emailField = document.getElementById('id_email');
+    const usernameField = document.getElementById('id_username');
+    
+    if (emailField && usernameField) {
+        emailField.addEventListener('input', function() {
+            usernameField.value = emailField.value;
+        });
+        
+        if (emailField.value) {
+            usernameField.value = emailField.value;
+        }
+    }
+});
+</script>
+{% endblock %}
