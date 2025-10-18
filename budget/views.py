@@ -574,7 +574,7 @@ def edit_loan(request, pk):
     else:
         form = LoanForm(instance=loan)
     
-    return render(request, 'budget/loans_form.html', {'form': form, 'loan': loan})
+    return render(request, 'budget/loan_form.html', {'form': form, 'loan': loan})
 
 @login_required
 def delete_loan(request, pk):

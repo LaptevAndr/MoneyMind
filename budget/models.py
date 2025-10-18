@@ -109,7 +109,8 @@ class Loan(models.Model):
     @property
     def total_months(self):
         """Общее количество месяцев кредита"""
-        return (self.end_date.year - self.start_date.year) * 12 + (self.end_date.month - self.start_date.month)
+        total = (self.end_date.year - self.start_date.year) * 12 + (self.end_date.month - self.start_date.month)
+        return max(1, total)  # Гарантируем минимум 1 месяц
     
     @property
     def months_remaining(self):
@@ -119,14 +120,30 @@ class Loan(models.Model):
     @property
     def monthly_payment(self):
         """Ежемесячный платеж (аннуитетный)"""
+        # Если кредит без процентов
         if self.interest_rate == Decimal('0'):
+            if self.total_months == 0:
+                return self.initial_amount
             return self.initial_amount / Decimal(str(self.total_months))
         
+        # Расчет аннуитетного платежа
         monthly_rate = self.interest_rate / Decimal('100') / Decimal('12')
         total_months_dec = Decimal(str(self.total_months))
         
+        # Проверка на нулевой знаменатель
+        if monthly_rate == Decimal('0') or total_months_dec == Decimal('0'):
+            if total_months_dec == Decimal('0'):
+                return self.initial_amount
+            return self.initial_amount / total_months_dec
+        
+        # Расчет по формуле аннуитета
         numerator = self.initial_amount * monthly_rate * (Decimal('1') + monthly_rate) ** total_months_dec
         denominator = (Decimal('1') + monthly_rate) ** total_months_dec - Decimal('1')
+        
+        # Защита от деления на ноль
+        if denominator == Decimal('0'):
+            # Возвращаем простое деление на количество месяцев
+            return self.initial_amount / total_months_dec
         
         return numerator / denominator
     

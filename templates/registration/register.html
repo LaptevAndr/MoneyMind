@@ -4,6 +4,7 @@
 {% block title %}MoneyMind - Регистрация{% endblock %}
 
 {% block content %}
+
 <div class="auth-theme">
     <div class="auth-container">
         <!-- Floating elements -->
@@ -16,16 +17,16 @@
                 <div class="col-lg-6 col-md-8 col-sm-10">
                     <div class="auth-card">
                         <div class="auth-card-header">
-                            <div class="mb-3">
+                            <div class="mb-2">
                                 <i class="bi bi-person-plus display-4"></i>
                             </div>
-                            <h2 class="fw-bold mb-2">Создайте аккаунт</h2>
-                            <p class="opacity-90">Присоединяйтесь к MoneyMind сегодня</p>
+                            <h2 class="fw-bold mb-1">Создайте аккаунт</h2>
+                            <p class="opacity-90 mb-3">Присоединяйтесь к MoneyMind сегодня</p>
                         </div>
                         
                         <div class="auth-card-body">
                             {% if messages %}
-                            <div class="messages mb-3">
+                            <div class="messages mb-2">
                                 {% for message in messages %}
                                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                                     <i class="bi bi-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
@@ -37,9 +38,9 @@
                             {% endif %}
                             
                             {% if form.errors %}
-                            <div class="alert alert-danger">
+                            <div class="alert alert-danger mb-2">
                                 <strong>Ошибки в форме:</strong>
-                                <ul class="mb-0 mt-2">
+                                <ul class="mb-0 mt-1">
                                 {% for field, errors in form.errors.items %}
                                     {% for error in errors %}
                                     <li>{{ field }}: {{ error }}</li>
@@ -53,7 +54,7 @@
                                 {% csrf_token %}
                                 
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-6 mb-2">
                                         <label for="id_first_name" class="form-label fw-semibold">Имя *</label>
                                         <div class="input-group">
                                             <span class="input-group-text">
@@ -64,7 +65,7 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-6 mb-2">
                                         <label for="id_last_name" class="form-label fw-semibold">Фамилия *</label>
                                         <div class="input-group">
                                             <span class="input-group-text">
@@ -76,7 +77,7 @@
                                     </div>
                                 </div>
                                 
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <label for="id_email" class="form-label fw-semibold">Email *</label>
                                     <div class="input-group">
                                         <span class="input-group-text">
@@ -92,7 +93,7 @@
                                     <input type="text" id="id_username" name="username" value="{{ form.email.value|default:'' }}">
                                 </div>
                                 
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <label for="id_password1" class="form-label fw-semibold">Пароль *</label>
                                     <div class="input-group">
                                         <span class="input-group-text">
@@ -106,7 +107,7 @@
                                     </div>
                                 </div>
                                 
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <label for="id_password2" class="form-label fw-semibold">Подтверждение пароля *</label>
                                     <div class="input-group">
                                         <span class="input-group-text">
@@ -117,7 +118,7 @@
                                     </div>
                                 </div>
                                 
-                                <div class="form-check mb-4">
+                                <div class="form-check mb-3">
                                     <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
                                     <label class="form-check-label" for="terms">
                                         Я соглашаюсь с 
@@ -126,18 +127,18 @@
                                     </label>
                                 </div>
                                 
-                                <div class="d-grid gap-2 mb-3">
+                                <div class="d-grid gap-2 mb-2">
                                     <button type="submit" class="btn btn-primary btn-lg py-2">
                                         <i class="bi bi-person-plus me-2"></i>Создать аккаунт
                                     </button>
                                 </div>
                                 
-                                <div class="divider">
+                                <div class="divider mb-2">
                                     <span class="text-muted">Уже есть аккаунт?</span>
                                 </div>
                                 
                                 <div class="text-center">
-                                    <p class="mb-0 text-muted">
+                                    <p class="mb-2 text-muted">
                                         Уже зарегистрированы? 
                                         <a href="{% url 'budget:login' %}" class="text-decoration-none fw-semibold">
                                             Войти в аккаунт
@@ -148,7 +149,7 @@
                         </div>
                     </div>
                     
-                    <div class="text-center mt-4">
+                    <div class="text-center mt-3">
                         <small class="text-white opacity-75">
                             © 2025 MoneyMind. Ваш личный финансовый помощник
                         </small>
@@ -158,6 +159,53 @@
         </div>
     </div>
 </div>
+<style>
+    .auth-theme {
+        min-height: 100vh;
+        height: 100vh;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .auth-container {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .container {
+        max-height: 100vh;
+        overflow-y: auto;
+        padding: 20px;
+    }
+    
+    .auth-card {
+        margin: 0 auto;
+        max-width: 500px;
+    }
+    
+    .auth-card-body {
+        padding-top: 0.5rem;
+    }
+    
+    /* Для мобильных устройств */
+    @media (max-width: 768px) {
+        .auth-theme {
+            height: auto;
+            min-height: 100vh;
+        }
+        
+        .container {
+            padding: 15px;
+            overflow-y: visible;
+        }
+        
+        .auth-card {
+            margin: 10px 0;
+        }
+    }
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
