@@ -116,41 +116,35 @@ def create_demo_data(request):
         demo_loans = [
             {
                 'name': '[Демо] Ипотека',
-                'loan_type': 'mortgage',
-                'total_amount': 3500000,
-                'remaining_amount': 3200000,
-                'monthly_payment': 45000,
-                'interest_rate': 7.5,
+                'initial_amount': Decimal('3500000'),
+                'interest_rate': Decimal('7.5'),
+                'paid_amount': Decimal('300000'),  # Уже выплачено 300,000
                 'start_date': timezone.now().date() - timedelta(days=400),
                 'end_date': timezone.now().date() + timedelta(days=3000)
             },
             {
                 'name': '[Демо] Автокредит', 
-                'loan_type': 'consumer',
-                'total_amount': 900000,
-                'remaining_amount': 420000,
-                'monthly_payment': 28000,
-                'interest_rate': 11.9,
+                'initial_amount': Decimal('900000'),
+                'interest_rate': Decimal('11.9'),
+                'paid_amount': Decimal('480000'),  # Уже выплачено 480,000
                 'start_date': timezone.now().date() - timedelta(days=200),
                 'end_date': timezone.now().date() + timedelta(days=600)
             },
             {
                 'name': '[Демо] Потребительский кредит',
-                'loan_type': 'consumer', 
-                'total_amount': 300000,
-                'remaining_amount': 120000,
-                'monthly_payment': 15000,
-                'interest_rate': 15.2,
+                'initial_amount': Decimal('300000'),
+                'interest_rate': Decimal('15.2'),
+                'paid_amount': Decimal('180000'),  # Уже выплачено 180,000
                 'start_date': timezone.now().date() - timedelta(days=100),
                 'end_date': timezone.now().date() + timedelta(days=200)
             }
         ]
-        
+
         created_loans = []
         for loan_data in demo_loans:
             loan = Loan.objects.create(user=user, **loan_data)
             created_loans.append(loan)
-        
+
         # Создание демо-цели накопления
         SavingsGoal.objects.create(
             user=user,
@@ -279,7 +273,7 @@ def transaction_list(request):
     total_expense = expense_agg['total'] or Decimal('0')
     balance = total_income - total_expense
 
-    # Форматируем числа
+    # Форматируем числа с округлением
     total_income = total_income.quantize(Decimal('0.01'))
     total_expense = total_expense.quantize(Decimal('0.01'))
     balance = balance.quantize(Decimal('0.01'))
@@ -371,6 +365,14 @@ def transaction_list(request):
     
     free_money_after_savings = max(free_money_after_savings, Decimal('0'))
     free_money_after_expenses = max(free_money_after_expenses, Decimal('0'))
+
+    # ОКРУГЛЕНИЕ ВСЕХ ДЕНЕЖНЫХ ЗНАЧЕНИЙ
+    total_savings_goal = total_savings_goal.quantize(Decimal('0.01'))
+    total_current_savings = total_current_savings.quantize(Decimal('0.01'))
+    total_debt = total_debt.quantize(Decimal('0.01'))
+    total_monthly_payments = total_monthly_payments.quantize(Decimal('0.01'))
+    free_money_after_expenses = free_money_after_expenses.quantize(Decimal('0.01'))
+    free_money_after_savings = free_money_after_savings.quantize(Decimal('0.01'))
 
     context = {
         'transactions': all_transactions,
@@ -469,9 +471,14 @@ def loans_list(request):
     total_interest = Decimal('0')
     
     for loan in loans:
-        total_debt += Decimal(str(float(loan.remaining_amount)))
-        total_paid += Decimal(str(float(loan.paid_amount)))
-        total_interest += Decimal(str(float(loan.accrued_interest)))
+        total_debt += loan.remaining_amount
+        total_paid += loan.paid_amount
+        total_interest += loan.accrued_interest
+    
+    # ОКРУГЛЕНИЕ
+    total_debt = total_debt.quantize(Decimal('0.01'))
+    total_paid = total_paid.quantize(Decimal('0.01'))
+    total_interest = total_interest.quantize(Decimal('0.01'))
     
     context = {
         'loans': loans,

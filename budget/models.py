@@ -81,22 +81,25 @@ class Loan(models.Model):
     def current_total_amount(self):
         """Текущая общая сумма с начисленными процентами"""
         if self.interest_rate == Decimal('0'):
-            return self.initial_amount
+            return self.initial_amount.quantize(Decimal('0.01'))
         
         months_passed = self.months_passed
         monthly_rate = self.interest_rate / Decimal('100') / Decimal('12')
-        return self.initial_amount * (Decimal('1') + monthly_rate) ** months_passed
-    
+        total = self.initial_amount * (Decimal('1') + monthly_rate) ** months_passed
+        return total.quantize(Decimal('0.01'))
+
     @property
     def remaining_amount(self):
         """Оставшаяся сумма с учетом процентов"""
-        return self.current_total_amount - self.paid_amount
-    
+        result = self.current_total_amount - self.paid_amount
+        return result.quantize(Decimal('0.01'))
+
     @property
     def accrued_interest(self):
         """Начисленные проценты"""
-        return self.current_total_amount - self.initial_amount
-    
+        result = self.current_total_amount - self.initial_amount
+        return result.quantize(Decimal('0.01'))
+
     @property
     def months_passed(self):
         """Количество прошедших месяцев"""
@@ -123,8 +126,8 @@ class Loan(models.Model):
         # Если кредит без процентов
         if self.interest_rate == Decimal('0'):
             if self.total_months == 0:
-                return self.initial_amount
-            return self.initial_amount / Decimal(str(self.total_months))
+                return self.initial_amount.quantize(Decimal('0.01'))
+            return (self.initial_amount / Decimal(str(self.total_months))).quantize(Decimal('0.01'))
         
         # Расчет аннуитетного платежа
         monthly_rate = self.interest_rate / Decimal('100') / Decimal('12')
@@ -133,8 +136,8 @@ class Loan(models.Model):
         # Проверка на нулевой знаменатель
         if monthly_rate == Decimal('0') or total_months_dec == Decimal('0'):
             if total_months_dec == Decimal('0'):
-                return self.initial_amount
-            return self.initial_amount / total_months_dec
+                return self.initial_amount.quantize(Decimal('0.01'))
+            return (self.initial_amount / total_months_dec).quantize(Decimal('0.01'))
         
         # Расчет по формуле аннуитета
         numerator = self.initial_amount * monthly_rate * (Decimal('1') + monthly_rate) ** total_months_dec
@@ -142,11 +145,12 @@ class Loan(models.Model):
         
         # Защита от деления на ноль
         if denominator == Decimal('0'):
-            # Возвращаем простое деление на количество месяцев
-            return self.initial_amount / total_months_dec
+            # Возвращаем деление на количество месяцев
+            return (self.initial_amount / total_months_dec).quantize(Decimal('0.01'))
         
-        return numerator / denominator
-    
+        monthly_payment = numerator / denominator
+        return monthly_payment.quantize(Decimal('0.01'))
+
     @property
     def progress_percentage(self):
         """Процент выплаты"""

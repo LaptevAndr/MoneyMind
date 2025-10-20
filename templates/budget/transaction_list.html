@@ -144,7 +144,7 @@
                                 <div class="d-flex align-items-center">
                                     <div class="flex-grow-1">
                                         <h6 class="card-title text-muted mb-1">Доходы (30 дн.)</h6>
-                                        <h4 class="fw-bold text-success">{{ total_income }} ₽</h4>
+                                        <h4 class="fw-bold text-success">{{ total_income|floatformat:2 }} ₽</h4>
                                     </div>
                                     <div class="flex-shrink-0">
                                         <i class="bi bi-arrow-up-circle display-6 text-success opacity-50"></i>
@@ -163,7 +163,7 @@
                                 <div class="d-flex align-items-center">
                                     <div class="flex-grow-1">
                                         <h6 class="card-title text-muted mb-1">Расходы (30 дн.)</h6>
-                                        <h4 class="fw-bold text-danger">{{ total_expense }} ₽</h4>
+                                        <h4 class="fw-bold text-danger">{{ total_expense|floatformat:2 }} ₽</h4>
                                     </div>
                                     <div class="flex-shrink-0">
                                         <i class="bi bi-arrow-down-circle display-6 text-danger opacity-50"></i>
@@ -182,7 +182,7 @@
                                 <div class="d-flex align-items-center">
                                     <div class="flex-grow-1">
                                         <h6 class="card-title text-muted mb-1">Баланс (30 дн.)</h6>
-                                        <h4 class="fw-bold text-primary">{{ balance }} ₽</h4>
+                                        <h4 class="fw-bold text-primary">{{ balance|floatformat:2 }} ₽</h4>
                                     </div>
                                     <div class="flex-shrink-0">
                                         <i class="bi bi-wallet2 display-6 text-primary opacity-50"></i>
@@ -201,7 +201,7 @@
                                 <div class="d-flex align-items-center">
                                     <div class="flex-grow-1">
                                         <h6 class="card-title text-muted mb-1">Общий долг</h6>
-                                        <h4 class="fw-bold text-warning">{{ total_debt }} ₽</h4>
+                                        <h4 class="fw-bold text-warning">{{ total_debt|floatformat:2 }} ₽</h4>
                                     </div>
                                     <div class="flex-shrink-0">
                                         <i class="bi bi-credit-card display-6 text-warning opacity-50"></i>
@@ -280,7 +280,7 @@
                                     </td>
                                     <td>
                                         <span class="fw-bold {% if transaction.category.type == 'income' %}text-success{% else %}text-danger{% endif %}">
-                                            {{ transaction.amount }} ₽
+                                            {{ transaction.amount|floatformat:2 }} ₽
                                         </span>
                                     </td>
                                     <td>
